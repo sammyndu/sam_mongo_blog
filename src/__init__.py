@@ -1,5 +1,5 @@
 from flask import Flask
-from flask_pymongo import PyMongo
+from flask_pymongo import PyMongo, pymongo
 
 app = Flask(__name__, instance_relative_config=True)
 

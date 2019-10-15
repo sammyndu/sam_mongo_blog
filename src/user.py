@@ -1,4 +1,4 @@
-from src import app, mongo
+from src import app, mongo, pymongo
 from flask import render_template, jsonify, json, request
 from flask_restplus import Resource, Api, fields
 from bson import json_util, errors
@@ -16,7 +16,7 @@ class User(Resource):
     @namespace.doc(description='list all users')
     def get(self):
         user_collections = mongo.db.users        
-        return [ json.loads(json_util.dumps(doc, default=json_util.default)) for doc in user_collections.find({"isDelete":False})]
+        return [ json.loads(json_util.dumps(doc, default=json_util.default)) for doc in user_collections.find()]
 
     @namespace.doc(description='create a new user')
     @namespace.expect(user_fields)
@@ -31,7 +31,10 @@ class User(Resource):
                 or checkers.is_date(user_info['dateOfBirth']) == False:
             return {"msg": "invalid request"}, 400
         user_info["isDelete"] = False
-        mongo.db.users.insert(user_info)
+        try:
+            mongo.db.users.insert(user_info)
+        except pymongo.errors.DuplicateKeyError:
+            return {"msg":"email already exists"}
         return 'added user'
 
 @namespace.route('/user/<string:id>')
@@ -62,6 +65,8 @@ class SingleUser(Resource):
         try:
             mongo.db.users.update({"_id":ObjectId(id)},{"$set":user_info})
             return {"msg":'updated user'}
+        except pymongo.errors.DuplicateKeyError:
+            return {"msg":"email already exists"}
         except Exception as e:
             return {"error": str(e)}
 

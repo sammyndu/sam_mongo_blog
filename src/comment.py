@@ -21,7 +21,7 @@ class PostComment(Resource):
         try:
             comment_info = request.get_json()
             comment_info['postId'] = ObjectId(id)
-            comment_info["isDelete"] = True
+            comment_info["isDelete"] = False
             mongo.db.comments.insert(comment_info)
             return 'added comment'
         except Exception as e:

@@ -20,7 +20,7 @@ class Post(Resource):
     def post(self):
         try:
             post_info = request.get_json()
-            post_info["isDelete"] = True
+            post_info["isDelete"] = False
             mongo.db.posts.insert(post_info)
             return 'added post'
         except Exception as e:
