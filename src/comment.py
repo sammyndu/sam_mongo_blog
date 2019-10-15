@@ -1,9 +1,11 @@
 from src import app, mongo
 from flask import json, request
-from flask_restplus import Resource, Api
+from flask_restplus import Resource, Api, fields
 from bson import json_util, errors
 from bson.objectid import ObjectId
 from .user import namespace
+
+comment_fields = namespace.model("Comment", {"comment": fields.String })
 
 @namespace.route('/post/<string:id>/comments')
 class PostComment(Resource):
@@ -17,6 +19,7 @@ class PostComment(Resource):
             return {"error": str(e)}
 
     @namespace.doc(description='make a new comment under a post')
+    @namespace.expect(comment_fields)
     def post(self, id):
         try:
             comment_info = request.get_json()

@@ -1,10 +1,11 @@
 from src import app, mongo
 from flask import render_template, jsonify, json, request
-from flask_restplus import Resource
+from flask_restplus import Resource, fields
 from bson import json_util, errors
 from bson.objectid import ObjectId
 from .user import namespace
 
+post_fields = namespace.model("Post", {"title": fields.String, "content": fields.String })
 
 @namespace.route('/post')
 class Post(Resource):
@@ -17,6 +18,7 @@ class Post(Resource):
             return {"error": str(e)}
 
     @namespace.doc(description='create a new post')
+    @namespace.expect(post_fields)
     def post(self):
         try:
             post_info = request.get_json()
